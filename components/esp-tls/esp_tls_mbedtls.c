@@ -445,7 +445,12 @@ esp_err_t set_client_config(const char *hostname, size_t hostlen, esp_tls_cfg_t 
         return ESP_ERR_INVALID_STATE;
 #endif
     } else {
+#ifdef CONFIG_ESP_TLS_SKIP_SERVER_CERT_VERIFY
         mbedtls_ssl_conf_authmode(&tls->conf, MBEDTLS_SSL_VERIFY_NONE);
+#else
+        ESP_LOGE(TAG, "No server verification option set in esp_tls_cfg_t structure. Check esp_tls API reference");
+        return ESP_ERR_MBEDTLS_SSL_SETUP_FAILED;
+#endif
     }
 
     if (cfg->clientcert_buf != NULL && cfg->clientkey_buf != NULL) {
@@ -467,6 +472,11 @@ esp_err_t set_client_config(const char *hostname, size_t hostlen, esp_tls_cfg_t 
     } else if (cfg->clientcert_buf != NULL || cfg->clientkey_buf != NULL) {
         ESP_LOGE(TAG, "You have to provide both clientcert_buf and clientkey_buf for mutual authentication");
         return ESP_ERR_INVALID_STATE;
+    }
+
+    if (cfg->ciphersuites_list != NULL && cfg->ciphersuites_list[0] != 0) {
+        ESP_LOGD(TAG, "Set the ciphersuites list");
+        mbedtls_ssl_conf_ciphersuites(&tls->conf, cfg->ciphersuites_list);
     }
     return ESP_OK;
 }
@@ -563,4 +573,9 @@ void esp_mbedtls_free_global_ca_store(void)
         mbedtls_x509_crt_free(global_cacert);
         global_cacert = NULL;
     }
+}
+
+const int *esp_mbedtls_get_ciphersuites_list(void)
+{
+    return mbedtls_ssl_list_ciphersuites();
 }

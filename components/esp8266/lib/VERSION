@@ -1,4 +1,5 @@
 gwen:
+<<<<<<< HEAD
     core:       db51cd0
     net80211:   58ed843
     pp:         ff7160f
@@ -6,3 +7,12 @@ gwen:
 
     smartconfig:  3.0.0/283eacca
     phy:          1163.0
+=======
+    core:       231e0e2
+    net80211:   9ad2f23
+    pp:         25e5ef2
+    espnow:     231e0e2
+
+    smartconfig:  3.0.0/af78f443
+    phy:          1166.0
+>>>>>>> master
